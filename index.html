@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawn Mowing Quote Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <!-- Top Menu -->
+    <nav class="top-menu">
+        <div class="menu-container">
+            <span class="menu-brand">QuoteGen Pro</span>
+            <ul>
+                <li><a href="#" id="customizeQuoteLink">Customize Quote Appearance</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-content-wrapper">
+        <div class="container main-content-area"> 
+            <!-- Pricing Settings Section -->
+            <div class="settings-panel card">
+                <h2>Pricing Settings</h2>
+                <div class="input-group">
+                    <label for="calculationMethod">Calculation Method:</label>
+                    <select id="calculationMethod">
+                        <option value="perimeter">Perimeter (meters)</option>
+                        <option value="area">Area (square meters)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="baseFee">Base Fee (<span class="currency-symbol">$</span>):</label>
+                    <input type="number" id="baseFee" step="0.01" min="0" value="25.00">
+                </div>
+                <div class="input-group">
+                    <label for="ratePerUnit" id="ratePerUnitLabel">Rate Per Meter (<span class="currency-symbol">$</span>):</label>
+                    <input type="number" id="ratePerUnit" step="0.01" min="0" value="0.75">
+                </div>
+                <!-- Currency Symbol Input Removed -->
+                <h3>Extra Service Prices (<span class="currency-symbol">$</span>)</h3>
+                <div id="extraServicesSettings">
+                    <!-- Dynamically populated extra service inputs -->
+                </div>
+                <button id="addNewExtraServiceBtn" type="button" class="small-btn btn-add-service">Add New Extra Service</button>
+                <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+                <p id="settingsMessage" class="message"></p>
+            </div>
+
+            <!-- Quote Calculation Section -->
+            <div class="calculator-panel card">
+                <h2>Job Details & Quote Calculation</h2>
+                <div class="lawns-input-section">
+                    <h3>Lawn Areas</h3>
+                    <p class="subtle-text">(Based on selected calculation method)</p>
+                    <div id="lawnInputsContainer"></div>
+                    <button id="addLawnBtn" type="button" class="small-btn btn-secondary">Add Another Lawn Area</button>
+                </div>
+                <h3>Select Extra Services</h3>
+                 <p class="subtle-text">(Applied to entire job)</p>
+                <div id="extraServicesCheckboxes"></div>
+                <button id="calculateBtn" class="btn-primary">Generate Quote</button>
+            </div>
+
+            <!-- Quote Display Section -->
+            <div class="quote-display-panel card" id="quoteDisplayPanel" style="display:none;">
+                <h2>Generated Quote</h2>
+                <div id="quoteBreakdown"></div>
+                <div class="quote-total">
+                    <strong>Total Estimated Quote: <span id="quoteTotalAmount"></span></strong>
+                </div>
+                <button id="downloadQuoteBtn" class="btn-cta">Download Quote as PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quote Customization Modal -->
+    <div id="customizationModal" class="modal">
+        <div class="modal-content card">
+            <span class="close-modal-btn" id="closeCustomizationModalBtn">×</span>
+            <h2>Customize Quote Appearance</h2>
+            <div class="modal-form">
+                <div class="input-group">
+                    <label for="quoteTitle">Quote Title (e.g., "Service Quote", "Estimate"):</label>
+                    <input type="text" id="quoteTitle" value="Lawn Service Quote">
+                </div>
+                <div class="input-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" id="companyName" placeholder="Your Company LLC">
+                </div>
+                <div class="input-group">
+                    <label for="companyLogo">Company Logo (Max 1MB, ideally square/wide):</label>
+                    <input type="file" id="companyLogo" accept="image/png, image/jpeg, image/gif">
+                    <img id="logoPreview" src="#" alt="Logo Preview" style="max-width: 150px; max-height: 70px; margin-top: 10px; display: none;">
+                    <button type="button" id="removeLogoBtn" class="small-btn btn-danger" style="display:none; margin-top: 5px;">Remove Logo</button>
+                </div>
+                 <div class="input-group">
+                    <label for="companyAddress">Company Address (Street, City, Postal):</label>
+                    <textarea id="companyAddress" rows="3" placeholder="123 Main St, Anytown, USA 12345"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="companyContact">Company Contact (Phone / Email / Website):</label>
+                    <input type="text" id="companyContact" placeholder="Phone: 555-1234 | Email: info@example.com">
+                </div>
+                <div class="input-group">
+                    <label for="quoteFooterNotes">Footer Notes (e.g., Payment Terms, Thank You):</label>
+                    <textarea id="quoteFooterNotes" rows="3" placeholder="Payment due upon receipt. Thank you for your business!"></textarea>
+                </div>
+                 <div class="input-group">
+                    <label for="customerNameInput">Customer Name (Optional - Appears on Quote):</label>
+                    <input type="text" id="customerNameInput" placeholder="John Doe">
+                </div>
+                <div class="input-group">
+                    <label for="customerAddressInput">Customer Address (Optional):</label>
+                    <textarea id="customerAddressInput" rows="2" placeholder="456 Oak Ave, Client City"></textarea>
+                </div>
+
+                <button id="saveCustomizationBtn" class="btn-primary">Save Customization</button>
+                <p id="customizationMessage" class="message"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Hidden container for generating the PNG report (for html2canvas) -->
+    <div id="reportContainer" class="report-preview" style="display: none;">
+        <div class="report-header">
+            <div class="report-logo-area">
+                <img id="reportLogo" src="" alt="Company Logo" style="display:none;">
+            </div>
+            <div class="report-company-info">
+                <h2 id="reportCompanyName">Your Company Name</h2>
+                <p id="reportCompanyAddress">123 Main St, Anytown</p>
+                <p id="reportCompanyContact">Phone | Email | Website</p>
+            </div>
+        </div>
+        <h1 class="report-main-title" id="reportMainTitle">Lawn Service Quote</h1>
+         <div class="report-customer-section">
+            <h3>To:</h3>
+            <p id="reportCustomerName">Customer Name</p>
+            <p id="reportCustomerAddress">Customer Address</p>
+        </div>
+        <p class="report-date-line">Date: <span id="reportDate"></span></p>
+
+        <div class="report-section items-section">
+            <h3>Service Breakdown</h3>
+            <p id="reportBaseFeeLine"></p> 
+            <div id="reportLawnDetails">
+                <!-- Details of each lawn for the report -->
+            </div>
+            <p><span id="reportUnitChargeLabel">Total Unit Charge</span> (<span id="reportTotalUnitValue"></span><span id="reportUnitMeasurement"></span> @ <span id="reportRatePerUnitText"></span>/<span id="reportUnitType"></span>): <span id="reportUnitChargeTotalValue"></span></p>
+            <p id="reportMowingSubtotalLine"></p> 
+        </div>
+        <div class="report-section" id="reportExtraServicesSection" style="display:none;">
+            <h3>Additional Services</h3>
+            <ul id="reportExtraServicesList"></ul>
+        </div>
+        <div class="report-total">
+            <h3>Total Estimated Quote: <span id="reportTotalAmountText"></span></h3>
+        </div>
+        <div class="report-footer">
+            <p id="reportFooterNotes">Thank you!</p>
+            <p class="report-disclaimer">This is an estimate. Prices subject to final inspection.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
